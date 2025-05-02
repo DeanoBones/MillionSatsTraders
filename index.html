@@ -586,38 +586,23 @@
     });
 
     // Admin winner form
-    document.getElementById('admin-winner-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const password = document.getElementById('admin-password').value;
-      const winner = document.getElementById('actual-winner').value;
-      const submitButton = document.getElementById('admin-winner-form').querySelector('button');
+    document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const password = document.getElementById('admin-login-password').value.trim();
+  const submitButton = document.getElementById('admin-login-form').querySelector('button');
 
-      showMessage('admin-message', 'Setting winner...');
-      console.log(`Sending winner request: winner=${winner}, week=${currentWeek}`);
+  if (!password) {
+    showMessage('admin-login-message', 'Please enter a password.');
+    return;
+  }
 
-      try {
-        console.log(`Winner response status: ${response.status}`);
-        const data = await response.json();
-        console.log('Winner response data:', data);
+  // You can add optional client-side password check here if needed
+  document.getElementById('admin-login-section').classList.remove('active');
+  document.getElementById('admin-section').style.display = 'block';
+  document.getElementById('admin-login-password').value = '';
+  showMessage('admin-login-message', '');
+});
 
-        if (!response.ok) {
-          showMessage('admin-message', data.error || 'Error setting winner.');
-          submitButton.disabled = false;
-          return;
-        }
-
-        showMessage('admin-message', 'Winner set and scores updated!');
-        document.getElementById('last-winner-name').textContent = winner;
-        document.getElementById('admin-winner-form').reset();
-        document.getElementById('admin-section').style.display = 'none';
-        document.getElementById('admin-login-btn').style.display = 'block';
-        renderBettingLeaderboard();
-      } catch (error) {
-        console.error('Winner error:', error);
-        showMessage('admin-message', error.message.includes('Failed to fetch') ? 'Server is waking up. Try again in 30 seconds.' : `Error: ${error.message}`);
-        submitButton.disabled = false;
-      }
-    });
 
     async function renderBettingLeaderboard() {
       const container = document.getElementById('betting-leaderboard-cards');
