@@ -596,11 +596,6 @@
       console.log(`Sending winner request: winner=${winner}, week=${currentWeek}`);
 
       try {
-        const response = await fetch(`${API_URL}/admin/set-winner`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ winner, week: currentWeek, password })
-        });
         console.log(`Winner response status: ${response.status}`);
         const data = await response.json();
         console.log('Winner response data:', data);
