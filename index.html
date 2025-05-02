@@ -487,6 +487,7 @@
 
     // Show message
     function showMessage(elementId, message) {
+      console.log(`Showing message for ${elementId}: ${message}`);
       const messageEl = document.getElementById(elementId);
       messageEl.textContent = message;
       messageEl.style.display = message ? 'block' : 'none';
@@ -519,6 +520,7 @@
 
     // Admin login form
     document.getElementById('admin-login-btn').addEventListener('click', () => {
+      console.log('Admin login button clicked');
       document.getElementById('admin-login-section').classList.add('active');
       document.getElementById('admin-login-btn').style.display = 'none';
       document.getElementById('admin-login-password').focus();
@@ -536,26 +538,47 @@
 
       submitButton.disabled = true;
       showMessage('admin-login-message', 'Verifying password...');
+      console.log('Sending login request with password');
 
       try {
         const response = await fetch(`${API_URL}/admin/set-winner`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ winner: 'test', week: 'test', password })
+          body: JSON.stringify({ winner: 'Shandalf', week: currentWeek, password })
         });
+        console.log(`Login response status: ${response.status}`);
         const data = await response.json();
+        console.log('Login response data:', data);
+
         if (response.status === 401) {
           showMessage('admin-login-message', 'Incorrect password.');
           submitButton.disabled = false;
           return;
         }
-        if (!response.ok) throw new Error(data.error || 'Admin verification failed.');
+        if (response.status === 400) {
+          showMessage('admin-login-message', data.error || 'Invalid request. Please try again.');
+          submitButton.disabled = false;
+          return;
+        }
+        if (response.status === 500) {
+          showMessage('admin-login-message', 'Server error. Please try again later.');
+          submitButton.disabled = false;
+          return;
+        }
+        if (!response.ok) {
+          showMessage('admin-login-message', data.error || 'Admin verification failed.');
+          submitButton.disabled = false;
+          return;
+        }
+
+        console.log('Login successful, updating UI');
         document.getElementById('admin-login-section').classList.remove('active');
         document.getElementById('admin-section').classList.add('active');
         document.getElementById('admin-login-password').value = '';
         showMessage('admin-login-message', '');
       } catch (error) {
-        showMessage('admin-login-message', error.message.includes('Failed to fetch') ? 'Server is waking up. Try again in 30 seconds.' : error.message);
+        console.error('Login error:', error);
+        showMessage('admin-login-message', error.message.includes('Failed to fetch') ? 'Server is waking up. Try again in 30 seconds.' : `Error: ${error.message}`);
         submitButton.disabled = false;
       }
     });
@@ -573,6 +596,7 @@
 
       submitButton.disabled = true;
       showMessage('admin-message', 'Setting winner...');
+      console.log(`Sending winner request: winner=${winner}, week=${currentWeek}`);
 
       try {
         const response = await fetch(`${API_URL}/admin/set-winner`, {
@@ -580,8 +604,16 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ winner, week: currentWeek })
         });
+        console.log(`Winner response status: ${response.status}`);
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Error setting winner.');
+        console.log('Winner response data:', data);
+
+        if (!response.ok) {
+          showMessage('admin-message', data.error || 'Error setting winner.');
+          submitButton.disabled = false;
+          return;
+        }
+
         showMessage('admin-message', 'Winner set and scores updated!');
         document.getElementById('last-winner-name').textContent = winner;
         document.getElementById('admin-winner-form').reset();
@@ -589,7 +621,8 @@
         document.getElementById('admin-login-btn').style.display = 'block';
         renderBettingLeaderboard();
       } catch (error) {
-        showMessage('admin-message', error.message.includes('Failed to etch') ? 'Server is waking up. Try again in 30 seconds.' : error.message);
+        console.error('Winner error:', error);
+        showMessage('admin-message', error.message.includes('Failed to fetch') ? 'Server is waking up. Try again in 30 seconds.' : `Error: ${error.message}`);
         submitButton.disabled = false;
       }
     });
