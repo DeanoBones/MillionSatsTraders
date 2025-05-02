@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://api.coingecko.com; connect-src 'self' https://api.coingecko.com https://satoshi-millionaire-backend.onrender.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;">
   <title>Satoshi Millionaire Trading Competition</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
   <style>
@@ -442,7 +443,7 @@
             <option value="Hawk">Hawk</option>
           </select>
           <label for="admin-week">Week (e.g., 2025-W18):</label>
-          <input type="text" id="admin-week" value="${getCurrentWeek()}" required>
+          <input type="text" id="admin-week" required>
           <button type="submit">Set Winner</button>
           <button type="button" id="cancel-admin">Cancel</button>
         </form>
@@ -478,15 +479,20 @@
       Hawk: 0
     };
     const lastWeeksWinner = "None";
-
     const API_URL = 'https://satoshi-millionaire-backend.onrender.com/api';
+    let adminPassword = ''; // Store verified password
 
     function getCurrentWeek() {
       const now = new Date();
-      const startOfYear = new Date(now.getFullYear(), 0, 1);
-      const weekNumber = Math.ceil((((now - startOfYear) / 86400000) + startOfYear.getDay() + 1) / 7);
-      return `${now.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`;
+      const year = now.getFullYear();
+      const startOfYear = new Date(year, 0, 1);
+      const days = Math.floor((now - startOfYear) / (24 * 60 * 60 * 1000));
+      const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
+      return `${year}-W${weekNumber.toString().padStart(2, '0')}`;
     }
+
+    // Set initial week value
+    document.getElementById('admin-week').value = getCurrentWeek();
 
     // Show message
     function showMessage(elementId, message) {
@@ -554,7 +560,6 @@
       showMessage('admin-login-message', 'Verifying password...');
 
       try {
-        // Test password with a dummy request
         const response = await fetch(`${API_URL}/admin/set-winner`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -567,7 +572,7 @@
           return;
         }
         if (!response.ok) throw new Error(data.error || 'Admin verification failed.');
-        // Password correct, show admin form
+        adminPassword = password; // Store verified password
         document.getElementById('admin-login-section').classList.remove('active');
         document.getElementById('admin-section').classList.add('active');
         document.getElementById('admin-login-password').value = '';
@@ -584,7 +589,6 @@
       e.preventDefault();
       const winner = document.getElementById('actual-winner').value;
       const week = document.getElementById('admin-week').value.trim();
-      const password = document.getElementById('admin-login-password').value.trim() || 'temp'; // Use temp as placeholder
       const submitButton = document.getElementById('admin-winner-form').querySelector('button[type="submit"]');
 
       if (!winner || !week) {
@@ -599,7 +603,7 @@
         const response = await fetch(`${API_URL}/admin/set-winner`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ winner, week, password })
+          body: JSON.stringify({ winner, week, password: adminPassword })
         });
         const data = await response.json();
         if (response.status === 401) {
@@ -616,6 +620,7 @@
         document.getElementById('admin-week').value = getCurrentWeek();
         document.getElementById('admin-section').classList.remove('active');
         document.getElementById('admin-login-btn').style.display = 'block';
+        adminPassword = ''; // Clear password
         renderBettingLeaderboard();
       } catch (error) {
         showMessage('admin-message', error.message.includes('Failed to fetch') ? 'Server is waking up. Try again in 30 seconds.' : error.message);
@@ -632,6 +637,7 @@
       document.getElementById('admin-login-password').value = '';
       showMessage('admin-message', '');
       showMessage('admin-login-message', '');
+      adminPassword = '';
     });
 
     async function renderBettingLeaderboard() {
