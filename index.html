@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Satoshi Millionaire Trading Competition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(#1A1A1A, #2A2A2A), url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" opacity="0.1"%3E%3Cpath fill="%23F7931A" d="M10 50h80M50 10v80" /%3E%3C/svg%3E');
+      color: white;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    header {
+      text-align: center;
+      padding: 40px 20px;
+      position: relative;
+    }
+    .tagline {
+      font-size: 48px;
+      color: #F7931A;
+      text-transform: uppercase;
+      text-shadow: 0 0 5px rgba(247, 147, 26, 0.5);
+      margin: 0;
+    }
+    .tagline::after {
+      content: ' ₿';
+      font-size: 40px;
+      vertical-align: middle;
+    }
+    .prize-pool {
+      text-align: center;
+      margin: 20px 0;
+      padding: 20px;
+      background: radial-gradient(circle, rgba(247, 147, 26, 0.3) 0%, transparent 70%);
+      border: 3px solid #F7931A;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #F7931A;
+      display: inline-block;
+      position: relative;
+      overflow: hidden;
+    }
+    .prize-pool h2 {
+      font-size: 40px;
+      margin: 0;
+      color: #FFFFFF;
+      text-shadow: 0 0 10px #F7931A;
+    }
+    .prize-pool .sats {
+      font-size: 60px;
+      font-weight: 900;
+      color: #FFFFFF;
+      margin: 10px 0;
+      animation: scalePulse 3s infinite ease-in-out;
+    }
+    @keyframes scalePulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    .prize-pool .gbp {
+      font-size: 28px;
+      color: #FFFFFF;
+    }
+    .prize-pool .particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+    }
+    .prize-pool .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #F7931A;
+      border-radius: 50%;
+      opacity: 0.5;
+      animation: float 4s infinite ease-in;
+    }
+    @keyframes float {
+      0% { transform: translateY(100%); opacity: 0.5; }
+      100% { transform: translateY(-50%); opacity: 0; }
+    }
+    .countdown {
+      font-size: 20px;
+      color: #FFFFFF;
+      margin: 10px 0;
+    }
+    .countdown span {
+      color: #F7931A;
+      font-weight: 900;
+    }
+    .last-winner {
+      text-align: center;
+      padding: 15px;
+      font-size: 20px;
+      color: #FFFFFF;
+    }
+    .last-winner span {
+      color: #F7931A;
+      font-weight: 900;
+    }
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+    .leaderboard {
+      background: #2A2A2A;
+      padding: 30px;
+      border: 3px solid #F7931A;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(247, 147, 26, 0.5);
+      text-align: center;
+    }
+    .leaderboard h3 {
+      font-size: 32px;
+      color: #F7931A;
+      margin: 0 0 20px;
+    }
+    .toggle-rules {
+      color: #F7931A;
+      background: #2A2A2A;
+      border: 2px solid #F7931A;
+      padding: 10px 20px;
+      font-weight: 900;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 8px;
+      text-decoration: none;
+      display: block;
+      margin: 20px auto;
+      width: fit-content;
+    }
+    .toggle-rules:hover {
+      box-shadow: 0 0 10px #F7931A;
+    }
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    .card {
+      background: #2A2A2A url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="50" height="50" opacity="0.05"%3E%3Cpath fill="%23F7931A" d="M10 25h30M25 10v30" /%3E%3C/svg%3E');
+      border-radius: 8px;
+      padding: 20px;
+      width: 200px;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card.rank-1 {
+      border: 2px solid #FFD700;
+      box-shadow: 0 0 10px #FFD700;
+    }
+    .card.rank-2 {
+      border: 2px solid #C0C0C0;
+      box-shadow: 0 0 10px #C0C0C0;
+    }
+    .card.rank-3 {
+      border: 2px solid #8C5523;
+      box-shadow: 0 0 10px #8C5523;
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+    .card.rank-1:hover {
+      box-shadow: 0 0 15px #FFD700;
+    }
+    .card.rank-2:hover {
+      box-shadow: 0 0 15px #C0C0C0;
+    }
+    .card.rank-3:hover {
+      box-shadow: 0 0 15px #8C5523;
+    }
+    .card h4 {
+      margin: 0;
+      font-size: 24px;
+      color: white;
+    }
+    .card.rank-1 h4::after {
+      content: ' 👑';
+    }
+    .card p {
+      margin: 10px 0;
+      font-size: 18px;
+      color: #F7931A;
+    }
+    .rules {
+      background: #2A2A2A;
+      padding: 30px;
+      border: 3px solid #F7931A;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(247, 147, 26, 0.5);
+      margin-top: 20px;
+      display: none;
+    }
+    .rules.active {
+      display: block;
+    }
+    .rules h3 {
+      font-size: 32px;
+      color: #F7931A;
+      text-shadow: 0 0 10px #F7931A;
+      text-align: center;
+      margin: 0 0 20px;
+    }
+    .rules ul {
+      list-style: none;
+      padding: 0;
+    }
+    .rules li {
+      margin: 15px 0;
+      position: relative;
+      padding-left: 25px;
+      font-size: 18px;
+    }
+    .rules li::before {
+      content: '₿';
+      color: #F7931A;
+      position: absolute;
+      left: 0;
+      font-size: 20px;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #2A2A2A;
+      border-top: 2px solid #F7931A;
+      margin-top: 30px;
+      font-size: 16px;
+    }
+    @media (max-width: 600px) {
+      .tagline { font-size: 32px; }
+      .tagline::after { font-size: 28px; }
+      .prize-pool h2 { font-size: 32px; }
+      .prize-pool .sats { font-size: 48px; }
+      .prize-pool .gbp { font-size: 24px; }
+      .countdown, .last-winner { font-size: 16px; }
+      .leaderboard h3, .rules h3 { font-size: 24px; }
+      .card { width: 100%; max-width: 250px; }
+      .card h4 { font-size: 20px; }
+      .card p { font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 class="tagline">Satoshi Millionaire Trading Competition</h1>
+    <div class="prize-pool">
+      <div class="particles">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 30%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 70%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: 0.5s;"></div>
+      </div>
+      <h2>PRIZE POOL</h2>
+      <div class="sats">1,000,000 Sats</div>
+      <div class="gbp" id="prize-gbp">~Calculating...</div>
+    </div>
+    <div class="countdown">Competition Ends: <span id="countdown-timer">Calculating...</span></div>
+  </header>
+
+  <div class="last-winner">Last Week’s Winner: <span id="last-winner-name">None</span></div>
+
+  <div class="container">
+    <div id="home" class="page active">
+      <div class="leaderboard">
+        <h3>🏆 Leaderboard 🏆</h3>
+        <div class="cards" id="leaderboard-cards">
+          <!-- Cards populated by JavaScript -->
+        </div>
+      </div>
+      <button class="toggle-rules" onclick="toggleRules()">Show Rules</button>
+      <div id="rules" class="rules">
+        <h3>Competition Rules</h3>
+        <ul>
+          <li>Traders can trade any asset and leverage on Hyperliquid perpetual futures.</li>
+          <li>All open positions must be closed by Saturday, 23:59 UTC.</li>
+          <li>The trader with the highest perps balance counted on Sunday wins 1 point.</li>
+          <li>If two traders tie for 1st, both receive 0.5 points. If all three tie, no points are awarded.</li>
+          <li>Every week, each trader resets their Perp balance to £10.</li>
+		  <li>In November, double points are awarded for the whole month.</li>
+          <li>In December, tripple points are awarded for the whole month.</li>
+          <li>Points are tallied on December 21, 2025. The trader with the most points wins the 1 million Satoshi prize, awarded on December 25, 2025.</li>
+          <li>In the event of a tie in the final tally, the 1 million Sats prize is split evenly.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Satoshi Millionaire Trading Competition © 2025</p>
+  </footer>
+
+  <script>
+    // Update scores and last week's winner here
+    const scores = {
+      Shandalf: 0,
+      Bucky: 0,
+      Hawk: 0
+    };
+    const lastWeeksWinner = "None"; // Update this weekly (e.g., "Shandalf")
+
+    // Function to render leaderboard
+    function renderLeaderboard() {
+      const container = document.getElementById('leaderboard-cards');
+      // Convert scores to array and sort by points (descending)
+      const sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+      // Clear existing cards
+      container.innerHTML = '';
+      // Add sorted cards
+      sortedScores.forEach(([name, points], index) => {
+        const rank = index + 1;
+        const card = document.createElement('div');
+        card.className = `card rank-${rank}`;
+        card.innerHTML = `
+          <h4>${name}</h4>
+          <p>Points: ${points}</p>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Function to display last week's winner
+    function displayLastWinner() {
+      document.getElementById('last-winner-name').textContent = lastWeeksWinner;
+    }
+
+    // Function to toggle rules
+    function toggleRules() {
+      const rules = document.getElementById('rules');
+      const button = document.querySelector('.toggle-rules');
+      if (rules.classList.contains('active')) {
+        rules.classList.remove('active');
+        button.textContent = 'Show Rules';
+      } else {
+        rules.classList.add('active');
+        button.textContent = 'Hide Rules';
+      }
+    }
+
+    // Fetch prize pool GBP value from CoinGecko API
+    async function fetchPrizePool() {
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=gbp');
+        const data = await response.json();
+        const btcPrice = data.bitcoin.gbp;
+        const sats = 1000000; // 1,000,000 Sats
+        const btcAmount = sats / 100000000; // Convert Sats to BTC
+        const gbpAmount = (btcAmount * btcPrice).toFixed(2);
+        document.getElementById('prize-gbp').textContent = `~£${gbpAmount}`;
+      } catch (error) {
+        console.error('Error fetching CoinGecko API:', error);
+        document.getElementById('prize-gbp').textContent = '~£7.50 (API Error)';
+      }
+    }
+
+    // Countdown clock to December 20, 2025, 23:59 UTC
+    function updateCountdown() {
+      const endDate = new Date('2025-12-20T23:59:00Z').getTime();
+      const now = new Date().getTime();
+      const timeLeft = endDate - now;
+
+      if (timeLeft <= 0) {
+        document.getElementById('countdown-timer').textContent = 'Competition Ended';
+        return;
+      }
+
+      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+      document.getElementById('countdown-timer').textContent = `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+    }
+
+    // Render leaderboard, fetch prize pool, display last winner, and start countdown on page load
+    renderLeaderboard();
+    fetchPrizePool();
+    displayLastWinner();
+    updateCountdown();
+    setInterval(updateCountdown, 1000); // Update countdown every second
+  </script>
+</body>
+</html>
