@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://api.coingecko.com; connect-src 'self' https://api.coingecko.com https://satoshi-millionaire-backend.onrender.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://api.coingecko.com 'sha256-AIv4DxSjVmSv/8W9XdB1FlGgl0kap5CL0DcpZIrLt/c='; connect-src 'self' https://api.coingecko.com https://satoshi-millionaire-backend.onrender.com; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;">
   <title>Satoshi Millionaire Trading Competition</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
   <style>
@@ -483,12 +483,11 @@
     let adminPassword = ''; // Store verified password
 
     function getCurrentWeek() {
-      const now = new Date();
-      const year = now.getFullYear();
-      const startOfYear = new Date(year, 0, 1);
-      const days = Math.floor((now - startOfYear) / (24 * 60 * 60 * 1000));
-      const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
-      return `${year}-W${weekNumber.toString().padStart(2, '0')}`;
+      const date = new Date();
+      const startOfYear = new Date(date.getFullYear(), 0, 1);
+      const dayOfYear = Math.floor((date - startOfYear) / (24 * 60 * 60 * 1000));
+      const weekNumber = Math.ceil((dayOfYear + startOfYear.getDay() + 1) / 7);
+      return `${date.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`;
     }
 
     // Set initial week value
@@ -506,14 +505,7 @@
       e.preventDefault();
       const userName = document.getElementById('user-name').value.trim();
       const betTrader = document.getElementById('bet-trader').value;
-      const submitButton = document.getElementById('betting-form').querySelector('button');
 
-      if (!userName || !betTrader) {
-        showMessage('bet-message', 'Please enter your name and select a trader.');
-        return;
-      }
-
-      submitButton.disabled = true;
       showMessage('bet-message', 'Submitting bet...');
 
       try {
@@ -523,19 +515,13 @@
           body: JSON.stringify({ user_name: userName, trader: betTrader, week: getCurrentWeek() })
         });
         const data = await response.json();
-        if (response.status === 429) {
-          showMessage('bet-message', 'Too many bets. Try again in 15 minutes.');
-          submitButton.disabled = false;
-          return;
+        showMessage('bet-message', response.ok ? 'Bet placed successfully!' : (data.error || 'Error placing bet.'));
+        if (response.ok) {
+          document.getElementById('betting-form').reset();
+          renderBettingLeaderboard();
         }
-        if (!response.ok) throw new Error(data.error || 'Error placing bet.');
-        showMessage('bet-message', 'Bet placed successfully!');
-        document.getElementById('betting-form').reset();
-        renderBettingLeaderboard();
       } catch (error) {
-        showMessage('bet-message', error.message.includes('Failed to fetch') ? 'Server is waking up. Try again in 30 seconds.' : error.message);
-      } finally {
-        submitButton.disabled = false;
+        showMessage('bet-message', 'Server is waking up. Please try again in a few seconds.');
       }
     });
 
@@ -610,6 +596,7 @@
           showMessage('admin-message', 'Admin action unauthorized. Please log in again.');
           document.getElementById('admin-section').classList.remove('active');
           document.getElementById('admin-login-btn').style.display = 'block';
+          adminPassword = '';
           submitButton.disabled = false;
           return;
         }
