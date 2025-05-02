@@ -1,323 +1,627 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Satoshi Millionaire Trading Competition</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        h1, h2 {
-            text-align: center;
-        }
-        .section {
-            background: white;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        label {
-            display: block;
-            margin: 10px 0 5px;
-        }
-        input, select, button {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        #admin-login-btn {
-            background-color: #007bff;
-        }
-        #admin-login-btn:hover {
-            background-color: #0056b3;
-        }
-        #admin-section, #admin-login {
-            display: none;
-        }
-        .error {
-            color: red;
-            margin-top: 10px;
-        }
-        .success {
-            color: green;
-            margin-top: 10px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ccc;
-            text-align: left;
-        }
-        th {
-            background-color: #f8f8f8;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Satoshi Millionaire Trading Competition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(#1A1A1A, #2A2A2A), url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" opacity="0.1"%3E%3Cpath fill="%23F7931A" d="M10 50h80M50 10v80" /%3E%3C/svg%3E');
+      color: white;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    header {
+      text-align: center;
+      padding: 40px 20px;
+      position: relative;
+    }
+    .tagline {
+      font-size: 48px;
+      color: #F7931A;
+      text-transform: uppercase;
+      text-shadow: 0 0 5px rgba(247, 147, 26, 0.5);
+      margin: 0;
+    }
+    .tagline::after {
+      content: ' ₿';
+      font-size: 40px;
+      vertical-align: middle;
+    }
+    .prize-pool {
+      text-align: center;
+      margin: 20px 0;
+      padding: 20px;
+      background: radial-gradient(circle, rgba(247, 147, 26, 0.3) 0%, transparent 70%);
+      border: 3px solid #F7931A;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #F7931A;
+      display: inline-block;
+      position: relative;
+      overflow: hidden;
+    }
+    .prize-pool h2 {
+      font-size: 40px;
+      margin: 0;
+      color: #FFFFFF;
+      text-shadow: 0 0 10px #F7931A;
+    }
+    .prize-pool .sats {
+      font-size: 60px;
+      font-weight: 900;
+      color: #FFFFFF;
+      margin: 10px 0;
+      animation: scalePulse 3s infinite ease-in-out;
+    }
+    @keyframes scalePulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    .prize-pool .gbp {
+      font-size: 28px;
+      color: #FFFFFF;
+    }
+    .prize-pool .particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+    }
+    .prize-pool .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #F7931A;
+      border-radius: 50%;
+      opacity: 0.5;
+      animation: float 4s infinite ease-in;
+    }
+    @keyframes float {
+      0% { transform: translateY(100%); opacity: 0.5; }
+      100% { transform: translateY(-50%); opacity: 0; }
+    }
+    .countdown {
+      font-size: 20px;
+      color: #FFFFFF;
+      margin: 10px 0;
+    }
+    .countdown span {
+      color: #F7931A;
+      font-weight: 900;
+    }
+    .last-winner {
+      text-align: center;
+      padding: 15px;
+      font-size: 20px;
+      color: #FFFFFF;
+    }
+    .last-winner span {
+      color: #F7931A;
+      font-weight: 900;
+    }
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+    .leaderboard, .betting-leaderboard {
+      background: #2A2A2A;
+      padding: 30px;
+      border: 3px solid #F7931A;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(247, 147, 26, 0.5);
+      text-align: center;
+    }
+    .leaderboard h3, .betting-leaderboard h3 {
+      font-size: 32px;
+      color: #F7931A;
+      margin: 0 0 20px;
+    }
+    .toggle-rules {
+      color: #F7931A;
+      background: #2A2A2A;
+      border: 2px solid #F7931A;
+      padding: 10px 20px;
+      font-weight: 900;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 8px;
+      text-decoration: none;
+      display: block;
+      margin: 20px auto;
+      width: fit-content;
+    }
+    .toggle-rules:hover {
+      box-shadow: 0 0 10px #F7931A;
+    }
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    .card {
+      background: #2A2A2A url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="50" height="50" opacity="0.05"%3E%3Cpath fill="%23F7931A" d="M10 25h30M25 10v30" /%3E%3C/svg%3E');
+      border-radius: 8px;
+      padding: 20px;
+      width: 200px;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card.rank-1 {
+      border: 2px solid #FFD700;
+      box-shadow: 0 0 10px #FFD700;
+    }
+    .card.rank-2 {
+      border: 2px solid #C0C0C0;
+      box-shadow: 0 0 10px #C0C0C0;
+    }
+    .card.rank-3 {
+      border: 2px solid #8C5523;
+      box-shadow: 0 0 10px #8C5523;
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+    .card.rank-1:hover {
+      box-shadow: 0 0 15px #FFD700;
+    }
+    .card.rank-2:hover {
+      box-shadow: 0 0 15px #C0C0C0;
+    }
+    .card.rank-3:hover {
+      box-shadow: 0 0 15px #8C5523;
+    }
+    .card h4 {
+      margin: 0;
+      font-size: 24px;
+      color: white;
+    }
+    .card.rank-1 h4::after {
+      content: ' ';
+    }
+    .card p {
+      margin: 10px 0;
+      font-size: 18px;
+      color: #F7931A;
+    }
+    .betting-section {
+      background: #2A2A2A;
+      padding: 30px;
+      border: 3px solid #F7931A;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(247, 147, 26, 0.5);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .betting-section h3 {
+      font-size: 32px;
+      color: #F7931A;
+      margin: 0 0 20px;
+    }
+    .betting-section form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .betting-section label {
+      font-size: 18px;
+      color: #FFFFFF;
+    }
+    .betting-section input,
+    .betting-section select {
+      padding: 10px;
+      font-size: 16px;
+      background: #1A1A1A;
+      color: #FFFFFF;
+      border: 2px solid #F7931A;
+      border-radius: 8px;
+      width: 200px;
+    }
+    .betting-section button {
+      background: #F7931A;
+      color: #1A1A1A;
+      padding: 10px 20px;
+      font-weight: 900;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .betting-section button:hover {
+      box-shadow: 0 0 10px #F7931A;
+    }
+    .betting-section p {
+      color: #FFFFFF;
+      font-size: 16px;
+    }
+    .betting-leaderboard {
+      background: #2A2A2A;
+      padding: 30px;
+      border: 3px solid #F7931A;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(247, 147, 26, 0.5);
+      text-align: center;
+    }
+    .betting-leaderboard h3 {
+      font-size: 32px;
+      color: #F7931A;
+      margin: 0 0 20px;
+    }
+    .admin-section {
+      background: #2A2A2A;
+      padding: 30px;
+      border: 3px solid #F7931A;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(247, 147, 26, 0.5);
+      text-align: center;
+      margin-top: 20px;
+    }
+    .admin-section h3 {
+      font-size: 32px;
+      color: #F7931A;
+      margin: 0 0 20px;
+    }
+    .admin-section form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .admin-section label {
+      font-size: 18px;
+      color: #FFFFFF;
+    }
+    .admin-section input,
+    .admin-section select {
+      padding: 10px;
+      font-size: 16px;
+      background: #1A1A1A;
+      color: #FFFFFF;
+      border: 2px solid #F7931A;
+      border-radius: 8px;
+      width: 200px;
+    }
+    .admin-section button {
+      background: #F7931A;
+      color: #1A1A1A;
+      padding: 10px 20px;
+      font-weight: 900;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .admin-section button:hover {
+      box-shadow: 0 0 10px #F7931A;
+    }
+    .admin-section p {
+      color: #FFFFFF;
+      font-size: 16px;
+    }
+    .rules {
+      background: #2A2A2A;
+      padding: 30px;
+      border: 3px solid #F7931A;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(247, 147, 26, 0.5);
+      margin-top: 20px;
+      display: none;
+    }
+    .rules.active {
+      display: block;
+    }
+    .rules h3 {
+      font-size: 32px;
+      color: #F7931A;
+      text-shadow: 0 0 10px #F7931A;
+      text-align: center;
+      margin: 0 0 20px;
+    }
+    .rules ul {
+      list-style: none;
+      padding: 0;
+    }
+    .rules li {
+      margin: 15px 0;
+      position: relative;
+      padding-left: 25px;
+      font-size: 18px;
+    }
+    .rules li::before {
+      content: '₿';
+      color: #F7931A;
+      position: absolute;
+      left: 0;
+      font-size: 20px;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #2A2A2A;
+      border-top: 2px solid #F7931A;
+      margin-top: 30px;
+      font-size: 16px;
+    }
+    @media (max-width: 600px) {
+      .tagline { font-size: 32px; }
+      .tagline::after { font-size: 28px; }
+      .prize-pool h2 { font-size: 32px; }
+      .prize-pool .sats { font-size: 48px; }
+      .prize-pool .gbp { font-size: 24px; }
+      .countdown, .last-winner { font-size: 16px; }
+      .leaderboard h3, .rules h3, .betting-section h3, .betting-leaderboard h3, .admin-section h3 { font-size: 24px; }
+      .card { width: 100%; max-width: 250px; }
+      .card h4 { font-size: 20px; }
+      .card p { font-size: 16px; }
+      .betting-section input, .betting-section select, .admin-section input, .admin-section select { width: 100%; }
+    }
+  </style>
 </head>
 <body>
-    <h1>Satoshi Millionaire Trading Competition</h1>
-
-    <div class="section">
-        <h2>Place Your Bet</h2>
-        <label for="user-name">Your Name:</label>
-        <input type="text" id="user-name" placeholder="Enter your name">
-        <label for="trader">Select Trader:</label>
-        <select id="trader">
-            <option value="Shandalf">Shandalf</option>
-            <option value="Bucky">Bucky</option>
-            <option value="Saylor Moon">Saylor Moon</option>
-            <option value="Vitalik">Vitalik</option>
-            <option value="Elon">Elon</option>
-        </select>
-        <button id="submit-bet">Submit Bet</button>
-        <p id="bet-message"></p>
+  <header>
+    <h1 class="tagline">Satoshi Millionaire Trading Competition</h1>
+    <div class="prize-pool">
+      <div class="particles">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 30%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 70%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: 0.5s;"></div>
+      </div>
+      <h2>PRIZE POOL</h2>
+      <div class="sats">1,000,000 Sats</div>
+      <div class="gbp" id="prize-gbp">~Calculating...</div>
     </div>
+    <div class="countdown">Competition Ends: <span id="countdown-timer">Calculating...</span></div>
+  </header>
 
-    <div class="section">
-        <h2>Admin Login</h2>
-        <button id="admin-login-btn">Admin Login</button>
-        <div id="admin-login">
-            <label for="admin-password">Password:</label>
-            <input type="password" id="admin-password" placeholder="Enter admin password">
-            <button id="submit-password">Submit Password</button>
-            <p id="password-message"></p>
+  <div class="last-winner">Last Week’s Winner: <span id="last-winner-name">None</span></div>
+
+  <div class="container">
+    <div id="home" class="page active">
+      <div class="leaderboard">
+        <h3> Leaderboard </h3>
+        <div class="cards" id="leaderboard-cards">
+          <!-- Populated by JavaScript -->
         </div>
-    </div>
-
-    <div class="section" id="admin-section">
-        <h2>Admin: Set Weekly Winner</h2>
-        <label for="winner">Select Winner:</label>
-        <select id="winner">
+      </div>
+      <div class="betting-section">
+        <h3>Place Your Bet</h3>
+        <form id="betting-form">
+          <label for="user-name">Your Name:</label>
+          <input type="text" id="user-name" required>
+          <label for="bet-trader">Predict This Week’s Winner:</label>
+          <select id="bet-trader" required>
+            <option value="" disabled selected>Select a trader</option>
             <option value="Shandalf">Shandalf</option>
             <option value="Bucky">Bucky</option>
-            <option value="Saylor Moon">Saylor Moon</option>
-            <option value="Vitalik">Vitalik</option>
-            <option value="Elon">Elon</option>
-        </select>
-        <label for="week">Week (e.g., 2025-W18):</label>
-        <input type="text" id="week" placeholder="Enter week (e.g., 2025-W18)">
-        <button id="submit-winner">Set Winner</button>
-        <button id="cancel-admin">Cancel</button>
-        <p id="admin-message"></p>
+            <option value="Hawk">Hawk</option>
+          </select>
+          <button type="submit">Submit Bet</button>
+        </form>
+        <p id="bet-message" style="display: none;"></p>
+        <p style="color: #F7931A; font-size: 14px;">Bet each week to predict the winner!</p>
+      </div>
+      <div class="betting-leaderboard">
+        <h3>Betting Leaderboard</h3>
+        <div class="cards" id="betting-leaderboard-cards">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+      <div class="admin-section" style="display: none;">
+        <h3>Admin: Set Weekly Winner</h3>
+        <form id="admin-winner-form">
+          <label for="admin-password">Password:</label>
+          <input type="password" id="admin-password" required>
+          <label for="actual-winner">Winner:</label>
+          <select id="actual-winner" required>
+            <option value="" disabled selected>Select winner</option>
+            <option value="Shandalf">Shandalf</option>
+            <option value="Bucky">Bucky</option>
+            <option value="Hawk">Hawk</option>
+          </select>
+          <button type="submit">Set Winner</button>
+        </form>
+        <p id="admin-message" style="display: none;"></p>
+      </div>
+      <button class="toggle-rules" onclick="toggleRules()">Show Rules</button>
+      <div id="rules" class="rules">
+        <h3>Competition Rules</h3>
+        <ul>
+          <li>Traders can trade any asset and leverage on Hyperliquid perpetual futures.</li>
+          <li>All open positions must be closed by Saturday, 23:59 UTC.</li>
+          <li>The trader with the highest perps balance counted on Sunday wins 1 point.</li>
+          <li>If two traders tie for 1st, both receive 0.5 points. If all three tie, no points are awarded.</li>
+          <li>Every week, each trader resets their Perp balance to $15.</li>
+          <li>In November, double points are awarded for the whole month.</li>
+          <li>In December, triple points are awarded for the whole month.</li>
+          <li>Points are tallied on December 21, 2025. The trader with the most points wins the 1 million Satoshi prize, awarded on December 25, 2025.</li>
+          <li>In the event of a tie in the final tally, the 1 million Sats prize is split evenly.</li>
+        </ul>
+      </div>
     </div>
+  </div>
 
-    <div class="section">
-        <h2>Betting Leaderboard</h2>
-        <table id="leaderboard">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Score</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+  <footer>
+    <p>Satoshi Millionaire Trading Competition © 2025</p>
+  </footer>
 
-    <script>
-        const API_URL = 'https://satoshi-millionaire-backend.onrender.com/api'; // Replace with your Render URL, e.g., https://satoshi-millionaire-backend.onrender.com/api
+  <script>
+    // Trading competition scores
+    const scores = {
+      Shandalf: 0,
+      Bucky: 0,
+      Hawk: 0
+    };
+    const lastWeeksWinner = "None";
 
-        // Get current week in format 2025-W18
-        function getCurrentWeek() {
-            const now = new Date();
-            const start = new Date(now.getFullYear(), 0, 1);
-            const diff = (now - start) / 86400000;
-            const week = Math.ceil((diff + start.getDay() + 1) / 7);
-            return `${now.getFullYear()}-W${week.toString().padStart(2, '0')}`;
+    const API_URL = 'https://satoshi-millionaire-backend.onrender.com/api'; // Replace with your Render URL
+    const currentWeek = getCurrentWeek();
+
+    function getCurrentWeek() {
+      const now = new Date();
+      const startOfYear = new Date(now.getFullYear(), 0, 1);
+      const weekNumber = Math.ceil((((now - startOfYear) / 86400000) + startOfYear.getDay() + 1) / 7);
+      return `${now.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`;
+    }
+
+    document.getElementById('betting-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const userName = document.getElementById('user-name').value.trim();
+      const betTrader = document.getElementById('bet-trader').value;
+      const message = document.getElementById('bet-message');
+
+      message.textContent = 'Submitting bet...';
+      message.style.display = 'block';
+
+      try {
+        const response = await fetch(`${API_URL}/bets`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_name: userName, trader: betTrader, week: currentWeek })
+        });
+        const data = await response.json();
+        message.textContent = response.ok ? 'Bet placed successfully!' : (data.error || 'Error placing bet.');
+        message.style.display = 'block';
+        if (response.ok) {
+          document.getElementById('betting-form').reset();
+          renderBettingLeaderboard();
         }
+      } catch (error) {
+        message.textContent = 'Server is waking up. Please try again in a few seconds.';
+        message.style.display = 'block';
+      }
+    });
 
-        // Show message with type (success/error)
-        function showMessage(elementId, message, type) {
-            const element = document.getElementById(elementId);
-            element.textContent = message;
-            element.className = type;
-            setTimeout(() => { element.textContent = ''; }, 5000);
+    document.getElementById('admin-winner-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const password = document.getElementById('admin-password').value;
+      const winner = document.getElementById('actual-winner').value;
+      const message = document.getElementById('admin-message');
+
+      message.textContent = 'Setting winner...';
+      message.style.display = 'block';
+
+      try {
+        const response = await fetch(`${API_URL}/admin/set-winner`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ winner, week: currentWeek, password })
+        });
+        const data = await response.json();
+        message.textContent = response.ok ? 'Winner set and scores updated!' : (data.error || 'Error setting winner.');
+        message.style.display = 'block';
+        if (response.ok) {
+          document.getElementById('last-winner-name').textContent = winner;
+          document.getElementById('admin-winner-form').reset();
+          renderBettingLeaderboard();
         }
+      } catch (error) {
+        message.textContent = 'Server is waking up. Please try again in a few seconds.';
+        message.style.display = 'block';
+      }
+    });
 
-        // Fetch and display leaderboard
-        async function updateLeaderboard() {
-            try {
-                const response = await fetch(`${API_URL}/scores`, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
-                if (!response.ok) throw new Error('Failed to fetch leaderboard');
-                const scores = await response.json();
-                const tbody = document.querySelector('#leaderboard tbody');
-                tbody.innerHTML = scores.map(s => `<tr><td>${s.user_name}</td><td>${s.score}</td></tr>`).join('');
-            } catch (error) {
-                console.error('Leaderboard error:', error);
-                showMessage('bet-message', 'Error loading leaderboard', 'error');
-            }
-        }
-
-        // Handle bet submission
-        document.getElementById('submit-bet').addEventListener('click', async () => {
-            const userName = document.getElementById('user-name').value.trim();
-            const trader = document.getElementById('trader').value;
-            if (!userName || !trader) {
-                showMessage('bet-message', 'Please enter your name and select a trader', 'error');
-                return;
-            }
-
-            const submitButton = document.getElementById('submit-bet');
-            submitButton.disabled = true;
-            showMessage('bet-message', 'Submitting bet...', '');
-
-            try {
-                const response = await fetch(`${API_URL}/bets`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_name: userName, trader, week: getCurrentWeek() })
-                });
-
-                if (response.status === 429) {
-                    showMessage('bet-message', 'Too many bets. Try again in 15 minutes.', 'error');
-                    submitButton.disabled = false;
-                    return;
-                }
-
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error || 'Failed to submit bet');
-
-                showMessage('bet-message', data.message, 'success');
-                document.getElementById('user-name').value = '';
-                updateLeaderboard();
-            } catch (error) {
-                console.error('Bet error:', error);
-                showMessage('bet-message', error.message.includes('Failed to fetch') ? 'Server is waking up, try again in 30 seconds' : error.message, 'error');
-            } finally {
-                submitButton.disabled = false;
-            }
+    async function renderBettingLeaderboard() {
+      const container = document.getElementById('betting-leaderboard-cards');
+      container.innerHTML = '<p>Loading leaderboard...</p>';
+      try {
+        const response = await fetch(`${API_URL}/scores`);
+        const scores = await response.json();
+        container.innerHTML = '';
+        scores.forEach(({ user_name, score }, index) => {
+          const rank = index + 1;
+          const card = document.createElement('div');
+          card.className = `card rank-${rank}`;
+          card.innerHTML = `
+            <h4>${user_name}</h4>
+            <p>Points: ${score}</p>
+          `;
+          container.appendChild(card);
         });
+      } catch (error) {
+        container.innerHTML = '<p>Server is waking up. Refresh in a few seconds.</p>';
+      }
+    }
 
-        // Handle admin login button
-        document.getElementById('admin-login-btn').addEventListener('click', () => {
-            document.getElementById('admin-login').style.display = 'block';
-            document.getElementById('admin-login-btn').style.display = 'none';
-            document.getElementById('admin-password').focus();
-        });
+    function renderLeaderboard() {
+      const container = document.getElementById('leaderboard-cards');
+      const sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+      container.innerHTML = '';
+      sortedScores.forEach(([name, points], index) => {
+        const rank = index + 1;
+        const card = document.createElement('div');
+        card.className = `card rank-${rank}`;
+        card.innerHTML = `
+          <h4>${name}</h4>
+          <p>Points: ${points}</p>
+        `;
+        container.appendChild(card);
+      });
+    }
 
-        // Handle password submission
-        document.getElementById('submit-password').addEventListener('click', async () => {
-            const password = document.getElementById('admin-password').value.trim();
-            if (!password) {
-                showMessage('password-message', 'Please enter a password', 'error');
-                return;
-            }
+    function displayLastWinner() {
+      document.getElementById('last-winner-name').textContent = lastWeeksWinner;
+    }
 
-            const submitButton = document.getElementById('submit-password');
-            submitButton.disabled = true;
-            showMessage('password-message', 'Verifying password...', '');
+    function toggleRules() {
+      const rules = document.getElementById('rules');
+      const button = document.querySelector('.toggle-rules');
+      if (rules.classList.contains('active')) {
+        rules.classList.remove('active');
+        button.textContent = 'Show Rules';
+      } else {
+        rules.classList.add('active');
+        button.textContent = 'Hide Rules';
+      }
+    }
 
-            try {
-                // Attempt a test admin request to verify password
-                const response = await fetch(`${API_URL}/admin/set-winner`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ winner: 'test', week: 'test', password })
-                });
+    async function fetchPrizePool() {
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=gbp');
+        const data = await response.json();
+        const btcPrice = data.bitcoin.gbp;
+        const sats = 1000000;
+        const btcAmount = sats / 100000000;
+        const gbpAmount = (btcAmount * btcPrice).toFixed(2);
+        document.getElementById('prize-gbp').textContent = `~£${gbpAmount}`;
+      } catch (error) {
+        document.getElementById('prize-gbp').textContent = '~£7.50 (API Error)';
+      }
+    }
 
-                const data = await response.json();
-                if (response.status === 401) {
-                    showMessage('password-message', 'Incorrect password', 'error');
-                    submitButton.disabled = false;
-                    return;
-                }
-                if (!response.ok) throw new Error(data.error || 'Admin verification failed');
+    function updateCountdown() {
+      const endDate = new Date('2025-12-20T23:59:00Z').getTime();
+      const now = new Date().getTime();
+      const timeLeft = endDate - now;
 
-                // Password correct, show admin form
-                document.getElementById('admin-login').style.display = 'none';
-                document.getElementById('admin-section').style.display = 'block';
-                document.getElementById('week').value = getCurrentWeek();
-                showMessage('password-message', '', '');
-                document.getElementById('admin-password').value = '';
-            } catch (error) {
-                console.error('Password error:', error);
-                showMessage('password-message', error.message.includes('Failed to fetch') ? 'Server is waking up, try again in 30 seconds' : error.message, 'error');
-            } finally {
-                submitButton.disabled = false;
-            }
-        });
+      if (timeLeft <= 0) {
+        document.getElementById('countdown-timer').textContent = 'Competition Ended';
+        return;
+      }
 
-        // Handle winner submission
-        document.getElementById('submit-winner').addEventListener('click', async () => {
-            const winner = document.getElementById('winner').value;
-            const week = document.getElementById('week').value.trim();
-            const password = document.getElementById('admin-password').value.trim() || 'temp'; // Use temp if already verified
+      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-            if (!winner || !week) {
-                showMessage('admin-message', 'Please select a winner and enter a week', 'error');
-                return;
-            }
+      document.getElementById('countdown-timer').textContent = `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+    }
 
-            const submitButton = document.getElementById('submit-winner');
-            submitButton.disabled = true;
-            showMessage('admin-message', 'Submitting winner...', '');
-
-            try {
-                const response = await fetch(`${API_URL}/admin/set-winner`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ winner, week, password })
-                });
-
-                if (response.status === 401) {
-                    showMessage('admin-message', 'Admin action unauthorized', 'error');
-                    submitButton.disabled = false;
-                    return;
-                }
-
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error || 'Failed to set winner');
-
-                showMessage('admin-message', data.message, 'success');
-                document.getElementById('admin-section').style.display = 'none';
-                document.getElementById('admin-login-btn').style.display = 'block';
-                updateLeaderboard();
-            } catch (error) {
-                console.error('Winner error:', error);
-                showMessage('admin-message', error.message.includes('Failed to fetch') ? 'Server is waking up, try again in 30 seconds' : error.message, 'error');
-            } finally {
-                submitButton.disabled = false;
-            }
-        });
-
-        // Handle cancel admin
-        document.getElementById('cancel-admin').addEventListener('click', () => {
-            document.getElementById('admin-section').style.display = 'none';
-            document.getElementById('admin-login').style.display = 'none';
-            document.getElementById('admin-login-btn').style.display = 'block';
-            document.getElementById('admin-password').value = '';
-            showMessage('admin-message', '', '');
-            showMessage('password-message', '', '');
-        });
-
-        // Initialize leaderboard
-        updateLeaderboard();
-    </script>
+    renderLeaderboard();
+    fetchPrizePool();
+    displayLastWinner();
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+    renderBettingLeaderboard();
+  </script>
 </body>
 </html>
+
