@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -123,7 +122,7 @@
       color: #F7931A;
       margin: 0 0 20px;
     }
-    .toggle-rules, .admin-login-btn {
+    .toggle-rules {
       color: #F7931A;
       background: #2A2A2A;
       border: 2px solid #F7931A;
@@ -137,7 +136,7 @@
       margin: 20px auto;
       width: fit-content;
     }
-    .toggle-rules:hover, .admin-login-btn:hover {
+    .toggle-rules:hover {
       box-shadow: 0 0 10px #F7931A;
     }
     .cards {
@@ -255,7 +254,7 @@
       color: #F7931A;
       margin: 0 0 20px;
     }
-    .admin-section, .admin-login-section {
+    .admin-section {
       background: #2A2A2A;
       padding: 30px;
       border: 3px solid #F7931A;
@@ -263,29 +262,24 @@
       box-shadow: 0 0 20px rgba(247, 147, 26, 0.5);
       text-align: center;
       margin-top: 20px;
-      display: none;
     }
-    .admin-section.active, .admin-login-section.active {
-      display: block;
-    }
-    .admin-section h3, .admin-login-section h3 {
+    .admin-section h3 {
       font-size: 32px;
       color: #F7931A;
       margin: 0 0 20px;
     }
-    .admin-section form, .admin-login-section form {
+    .admin-section form {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 10px;
     }
-    .admin-section label, .admin-login-section label {
+    .admin-section label {
       font-size: 18px;
       color: #FFFFFF;
     }
     .admin-section input,
-    .admin-section select,
-    .admin-login-section input {
+    .admin-section select {
       padding: 10px;
       font-size: 16px;
       background: #1A1A1A;
@@ -294,7 +288,7 @@
       border-radius: 8px;
       width: 200px;
     }
-    .admin-section button, .admin-login-section button {
+    .admin-section button {
       background: #F7931A;
       color: #1A1A1A;
       padding: 10px 20px;
@@ -304,10 +298,10 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    .admin-section button:hover, .admin-login-section button:hover {
+    .admin-section button:hover {
       box-shadow: 0 0 10px #F7931A;
     }
-    .admin-section p, .admin-login-section p {
+    .admin-section p {
       color: #FFFFFF;
       font-size: 16px;
     }
@@ -362,11 +356,11 @@
       .prize-pool .sats { font-size: 48px; }
       .prize-pool .gbp { font-size: 24px; }
       .countdown, .last-winner { font-size: 16px; }
-      .leaderboard h3, .rules h3, .betting-section h3, .betting-leaderboard h3, .admin-section h3, .admin-login-section h3 { font-size: 24px; }
+      .leaderboard h3, .rules h3, .betting-section h3, .betting-leaderboard h3, .admin-section h3 { font-size: 24px; }
       .card { width: 100%; max-width: 250px; }
       .card h4 { font-size: 20px; }
       .card p { font-size: 16px; }
-      .betting-section input, .betting-section select, .admin-section input, .admin-section select, .admin-login-section input { width: 100%; }
+      .betting-section input, .betting-section select, .admin-section input, .admin-section select { width: 100%; }
     }
   </style>
 </head>
@@ -421,19 +415,11 @@
           <!-- Populated by JavaScript -->
         </div>
       </div>
-      <button class="admin-login-btn" id="admin-login-btn">Admin Login</button>
-      <div class="admin-login-section" id="admin-login-section">
-        <h3>Admin Login</h3>
-        <form id="admin-login-form">
-          <label for="admin-login-password">Password:</label>
-          <input type="password" id="admin-login-password" required>
-          <button type="submit">Submit Password</button>
-        </form>
-        <p id="admin-login-message" style="display: none;"></p>
-      </div>
-      <div class="admin-section" id="admin-section" style="display: none;">
+      <div class="admin-section" style="display: none;">
         <h3>Admin: Set Weekly Winner</h3>
         <form id="admin-winner-form">
+          <label for="admin-password">Password:</label>
+          <input type="password" id="admin-password" required>
           <label for="actual-winner">Winner:</label>
           <select id="actual-winner" required>
             <option value="" disabled selected>Select winner</option>
@@ -475,7 +461,8 @@
       Hawk: 0
     };
     const lastWeeksWinner = "None";
-    const API_URL = 'https://satoshi-millionaire-backend.onrender.com/api';
+
+    const API_URL = 'https://satoshi-millionaire-backend.onrender.com/api'; // Replace with your Render URL
     const currentWeek = getCurrentWeek();
 
     function getCurrentWeek() {
@@ -485,21 +472,14 @@
       return `${now.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`;
     }
 
-    // Show message
-    function showMessage(elementId, message) {
-      console.log(`Showing message for ${elementId}: ${message}`);
-      const messageEl = document.getElementById(elementId);
-      messageEl.textContent = message;
-      messageEl.style.display = message ? 'block' : 'none';
-    }
-
-    // Betting form submission
     document.getElementById('betting-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const userName = document.getElementById('user-name').value.trim();
       const betTrader = document.getElementById('bet-trader').value;
+      const message = document.getElementById('bet-message');
 
-      showMessage('bet-message', 'Submitting bet...');
+      message.textContent = 'Submitting bet...';
+      message.style.display = 'block';
 
       try {
         const response = await fetch(`${API_URL}/bets`, {
@@ -508,122 +488,44 @@
           body: JSON.stringify({ user_name: userName, trader: betTrader, week: currentWeek })
         });
         const data = await response.json();
-        showMessage('bet-message', response.ok ? 'Bet placed successfully!' : (data.error || 'Error placing bet.'));
+        message.textContent = response.ok ? 'Bet placed successfully!' : (data.error || 'Error placing bet.');
+        message.style.display = 'block';
         if (response.ok) {
           document.getElementById('betting-form').reset();
           renderBettingLeaderboard();
         }
       } catch (error) {
-        showMessage('bet-message', 'Server is waking up. Please try again in a few seconds.');
+        message.textContent = 'Server is waking up. Please try again in a few seconds.';
+        message.style.display = 'block';
       }
     });
 
-    // Admin login form
-    document.getElementById('admin-login-btn').addEventListener('click', () => {
-      console.log('Admin login button clicked');
-      document.getElementById('admin-login-section').classList.add('active');
-      document.getElementById('admin-login-btn').style.display = 'none';
-      document.getElementById('admin-login-password').focus();
-    });
-
-    document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
+    document.getElementById('admin-winner-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const password = document.getElementById('admin-login-password').value.trim();
-      const submitButton = document.getElementById('admin-login-form').querySelector('button');
-
-      if (!password) {
-        showMessage('admin-login-message', 'Please enter a password.');
-        return;
-      }
-
-      submitButton.disabled = true;
-      showMessage('admin-login-message', 'Verifying password...');
-      console.log('Sending login request with password');
-
-      try {
-        const response = await fetch(`${API_URL}/admin/set-winner`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ winner: 'Shandalf', week: currentWeek, password })
-        });
-        console.log(`Login response status: ${response.status}`);
-        const data = await response.json();
-        console.log('Login response data:', data);
-
-        if (response.status === 401) {
-          showMessage('admin-login-message', 'Incorrect password.');
-          submitButton.disabled = false;
-          return;
-        }
-        if (response.status === 400) {
-          showMessage('admin-login-message', data.error || 'Invalid request. Please try again.');
-          submitButton.disabled = false;
-          return;
-        }
-        if (response.status === 500) {
-          showMessage('admin-login-message', 'Server error. Please try again later.');
-          submitButton.disabled = false;
-          return;
-        }
-        if (!response.ok) {
-          showMessage('admin-login-message', data.error || 'Admin verification failed.');
-          submitButton.disabled = false;
-          return;
-        }
-
-        console.log('Login successful, updating UI');
-        document.getElementById('admin-login-section').classList.remove('active');
-        document.getElementById('admin-section').classList.add('active');
-        document.getElementById('admin-login-password').value = '';
-        showMessage('admin-login-message', '');
-      } catch (error) {
-        console.error('Login error:', error);
-        showMessage('admin-login-message', error.message.includes('Failed to fetch') ? 'Server is waking up. Try again in 30 seconds.' : `Error: ${error.message}`);
-        submitButton.disabled = false;
-      }
-    });
-
-    // Admin winner form
-    document.getElementById('admin-winner-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
+      const password = document.getElementById('admin-password').value;
       const winner = document.getElementById('actual-winner').value;
-      const submitButton = document.getElementById('admin-winner-form').querySelector('button');
+      const message = document.getElementById('admin-message');
 
-      if (!winner) {
-        showMessage('admin-message', 'Please select a winner.');
-        return;
-      }
-
-      submitButton.disabled = true;
-      showMessage('admin-message', 'Setting winner...');
-      console.log(`Sending winner request: winner=${winner}, week=${currentWeek}`);
+      message.textContent = 'Setting winner...';
+      message.style.display = 'block';
 
       try {
         const response = await fetch(`${API_URL}/admin/set-winner`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ winner, week: currentWeek })
+          body: JSON.stringify({ winner, week: currentWeek, password })
         });
-        console.log(`Winner response status: ${response.status}`);
         const data = await response.json();
-        console.log('Winner response data:', data);
-
-        if (!response.ok) {
-          showMessage('admin-message', data.error || 'Error setting winner.');
-          submitButton.disabled = false;
-          return;
+        message.textContent = response.ok ? 'Winner set and scores updated!' : (data.error || 'Error setting winner.');
+        message.style.display = 'block';
+        if (response.ok) {
+          document.getElementById('last-winner-name').textContent = winner;
+          document.getElementById('admin-winner-form').reset();
+          renderBettingLeaderboard();
         }
-
-        showMessage('admin-message', 'Winner set and scores updated!');
-        document.getElementById('last-winner-name').textContent = winner;
-        document.getElementById('admin-winner-form').reset();
-        document.getElementById('admin-section').classList.remove('active');
-        document.getElementById('admin-login-btn').style.display = 'block';
-        renderBettingLeaderboard();
       } catch (error) {
-        console.error('Winner error:', error);
-        showMessage('admin-message', error.message.includes('Failed to fetch') ? 'Server is waking up. Try again in 30 seconds.' : `Error: ${error.message}`);
-        submitButton.disabled = false;
+        message.textContent = 'Server is waking up. Please try again in a few seconds.';
+        message.style.display = 'block';
       }
     });
 
@@ -722,3 +624,4 @@
   </script>
 </body>
 </html>
+
