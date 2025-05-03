@@ -416,12 +416,9 @@
 
     // Sample bets data with expected winnings
     const bets = [
-      { punter: "Andy Handy", betOn: "Shandalf", amount: "£10", expectedWinnings: "£" + (parseFloat("10") * traders.find(t => t.name === "Shandalf").odds).toFixed(2) },
-      { punter: "Boris Johnson", betOn: "Bucky", amount: "£10", expectedWinnings: "£" + (parseFloat("10") * traders.find(t => t.name === "Bucky").odds).toFixed(2) },
-      { punter: "Charlie Charles", betOn: "Hawk", amount: "£10", expectedWinnings: "£" + (parseFloat("10") * traders.find(t => t.name === "Hawk").odds).toFixed(2) },
-      { punter: "", betOn: "", amount: "", expectedWinnings: "" },
-      { punter: "", betOn: "", amount: "", expectedWinnings: "" },
-      { punter: "", betOn: "", amount: "", expectedWinnings: "" }
+      { punter: "", betOn: "Shandalf", amount: "£10", expectedWinnings: "£" + (parseFloat("10") * traders.find(t => t.name === "Shandalf").odds).toFixed(2) },
+      { punter: "", betOn: "Bucky", amount: "£10", expectedWinnings: "£" + (parseFloat("10") * traders.find(t => t.name === "Bucky").odds).toFixed(2) },
+      { punter: "", betOn: "Hawk", amount: "£10", expectedWinnings: "£" + (parseFloat("10") * traders.find(t => t.name === "Hawk").odds).toFixed(2) }
     ];
 
     // Function to render leaderboard
